@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>美國 ETD / Baby Bond 投資研究助理</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+
+    :root {
+      --navy: #0b1f3a;
+      --navy-2: #122d50;
+      --ink: #17233a;
+      --muted: #708095;
+      --line: #e5eaf0;
+      --bg: #f4f7fa;
+      --white: #fff;
+      --green: #16855b;
+      --green-bg: #eaf7f1;
+      --yellow: #a86d09;
+      --yellow-bg: #fff6df;
+      --red: #bd4141;
+      --red-bg: #fff0f0;
+      --blue: #1d62b7;
+      --blue-bg: #edf5ff;
+      --shadow: 0 12px 30px rgba(17, 42, 75, .08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "DM Sans", "Noto Sans TC", sans-serif;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; width: 252px;
+      background: var(--navy); color: #fff; padding: 26px 18px;
+      display: flex; flex-direction: column;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 9px 28px; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 12px; background: #fff;
+      color: var(--navy); display: grid; place-items: center; font-weight: 800; letter-spacing: -1px;
+      box-shadow: inset 0 -3px 0 #81d6b5;
+    }
+    .brand-name { font-weight: 700; font-size: 15px; line-height: 1.35; }
+    .brand-name small { color: #93abc3; font-weight: 500; display: block; font-size: 10px; letter-spacing: .13em; }
+    .nav-label { color: #7992ab; font-size: 10px; font-weight: 700; letter-spacing: .16em; margin: 10px 12px 8px; }
+    .nav { display: grid; gap: 4px; }
+    .nav-item {
+      appearance: none; border: 0; width: 100%; color: #aebed0; background: transparent;
+      display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 9px;
+      font-size: 13px; text-align: left; transition: .2s;
+    }
+    .nav-item:hover, .nav-item.active { color: #fff; background: rgba(255,255,255,.09); }
+    .nav-item.active { box-shadow: inset 3px 0 0 #67d3a6; }
+    .nav-icon { width: 19px; text-align: center; font-size: 15px; }
+    .sidebar-card {
+      margin-top: auto; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 14px;
+    }
+    .sidebar-card b { font-size: 12px; }
+    .sidebar-card p { color: #91a7be; font-size: 10px; line-height: 1.6; margin: 6px 0 0; }
+
+    .main { grid-column: 2; min-width: 0; }
+    .topbar {
+      height: 68px; background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 34px;
+      position: sticky; top: 0; z-index: 5; backdrop-filter: blur(10px);
+    }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .top-actions { display: flex; gap: 9px; align-items: center; }
+    .date-pill, .icon-btn {
+      border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 8px;
+      padding: 8px 11px; font-size: 11px;
+    }
+    .icon-btn { width: 33px; height: 33px; padding: 0; }
+
+    .content { max-width: 1420px; margin: auto; padding: 32px 36px 48px; }
+    .hero {
+      background: linear-gradient(120deg, #0c2441 0%, #123b63 65%, #12664c 145%);
+      color: #fff; border-radius: 16px; padding: 34px 38px; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: ""; position: absolute; width: 340px; height: 340px; border-radius: 50%;
+      right: -110px; top: -190px; border: 60px solid rgba(255,255,255,.035);
+    }
+    .eyebrow { color: #83d5b5; font-size: 10px; font-weight: 700; letter-spacing: .2em; margin-bottom: 10px; }
+    h1 { font-size: 29px; letter-spacing: -.03em; margin: 0 0 7px; }
+    .hero p { color: #a9bfd3; margin: 0; font-size: 12px; }
+    .search { display: flex; max-width: 660px; margin-top: 23px; background: #fff; border-radius: 10px; padding: 5px; position: relative; z-index: 1; }
+    .search span { color: #8ca0b1; display: grid; place-items: center; width: 38px; }
+    .search input { border: 0; outline: 0; flex: 1; min-width: 0; padding: 9px 4px; color: var(--ink); text-transform: uppercase; }
+    .search button { border: 0; background: var(--green); color: #fff; font-size: 12px; font-weight: 700; border-radius: 7px; padding: 0 22px; }
+    .quick-links { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #849db4; font-size: 10px; }
+    .ticker { border: 1px solid rgba(255,255,255,.13); color: #c0d1df; padding: 3px 8px; border-radius: 20px; cursor: pointer; }
+
+    .section-head { display: flex; justify-content: space-between; align-items: end; margin: 28px 0 12px; }
+    .section-head h2 { font-size: 16px; margin: 0 0 3px; }
+    .section-head p { color: var(--muted); margin: 0; font-size: 10px; }
+    .link-btn { border: 0; color: var(--blue); background: transparent; font-size: 11px; font-weight: 600; }
+
+    .scan-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 11px; }
+    .scan-card { background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 15px 16px; }
+    .scan-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 10px; }
+    .scan-dot { width: 7px; height: 7px; border-radius: 50%; background: #68c8a2; }
+    .scan-card strong { font-size: 24px; display: block; margin: 7px 0 2px; letter-spacing: -.05em; }
+    .scan-card small { color: #99a5b3; font-size: 9px; }
+    .up { color: var(--green); }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(270px, .8fr); gap: 15px; }
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .panel-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 15px; align-items: center; }
+    .panel-head h3 { margin: 0; font-size: 13px; }
+    .panel-head p { color: var(--muted); margin: 3px 0 0; font-size: 9px; }
+    .score { background: var(--green-bg); color: var(--green); border-radius: 8px; padding: 7px 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+
+    .bond-title { padding: 17px 18px; display: flex; justify-content: space-between; align-items: center; }
+    .bond-id { display: flex; gap: 11px; align-items: center; }
+    .bond-logo { width: 38px; height: 38px; display: grid; place-items: center; background: var(--navy); color: #fff; border-radius: 8px; font-weight: 700; }
+    .bond-id h3 { font-size: 15px; margin: 0 0 3px; }
+    .bond-id p { color: var(--muted); font-size: 9px; margin: 0; }
+    .price { text-align: right; }
+    .price strong { display: block; font-size: 19px; }
+    .price small { color: var(--green); font-size: 9px; }
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 18px 16px; }
+    .stat { padding: 5px 12px; border-left: 1px solid var(--line); }
+    .stat:first-child { border-left: 0; padding-left: 0; }
+    .stat label { color: var(--muted); font-size: 9px; display: block; margin-bottom: 4px; }
+    .stat b { font-size: 13px; }
+
+    .checks { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); }
+    .check { padding: 13px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 6px; align-items: center; font-size: 10px; }
+    .check:nth-child(4n) { border-right: 0; }
+    .badge { border-radius: 20px; padding: 3px 7px; font-weight: 700; font-size: 8px; }
+    .good { background: var(--green-bg); color: var(--green); }
+    .warn { background: var(--yellow-bg); color: var(--yellow); }
+    .bad { background: var(--red-bg); color: var(--red); }
+
+    .mini-title { padding: 15px 18px 9px; font-size: 10px; font-weight: 700; }
+    .yield-chart { height: 105px; padding: 0 20px 17px; display: flex; align-items: end; gap: 8px; }
+    .bar-wrap { flex: 1; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: end; }
+    .bar-value { color: var(--muted); font-size: 8px; margin-bottom: 4px; }
+    .bar { background: #c7d9ec; border-radius: 4px 4px 0 0; min-height: 6px; }
+    .bar.primary { background: var(--green); }
+    .bar-label { color: var(--muted); font-size: 8px; border-top: 1px solid var(--line); padding-top: 5px; }
+
+    .filter-body { padding: 14px 16px 17px; }
+    .filter { padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .filter:first-child { padding-top: 2px; }
+    .filter:last-child { border: 0; }
+    .filter-line { display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin-bottom: 9px; }
+    .filter-line b { color: var(--blue); }
+    .range { height: 3px; background: #e4e9ef; border-radius: 4px; position: relative; }
+    .range span { display: block; height: 100%; background: var(--green); width: 65%; border-radius: 4px; }
+    .range span::after { content: ""; position: absolute; width: 9px; height: 9px; background: #fff; border: 2px solid var(--green); border-radius: 50%; top: -4px; left: 63%; }
+    .toggle-line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; color: var(--muted); font-size: 10px; }
+    .toggle { width: 28px; height: 16px; background: #dce3ea; border-radius: 20px; position: relative; transition: .2s; cursor: pointer; }
+    .toggle::after { content: ""; width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: .2s; box-shadow: 0 1px 3px #aab5c0; }
+    .toggle.on { background: var(--green); }
+    .toggle.on::after { left: 14px; }
+    .filter-action { width: 100%; border: 0; background: var(--navy); color: #fff; border-radius: 7px; padding: 10px; font-size: 10px; font-weight: 700; margin-top: 9px; }
+
+    .tabs { display: flex; gap: 3px; }
+    .tab { border: 0; background: transparent; color: var(--muted); font-size: 9px; padding: 5px 8px; border-radius: 5px; }
+    .tab.active { background: var(--blue-bg); color: var(--blue); font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th { color: var(--muted); background: #fafbfd; font-size: 8px; letter-spacing: .04em; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+    td { font-size: 10px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    tr:last-child td { border-bottom: 0; }
+    .symbol { color: var(--blue); font-weight: 700; }
+    .meter { width: 42px; height: 4px; background: #edf0f4; display: inline-block; border-radius: 4px; overflow: hidden; margin-left: 5px; vertical-align: middle; }
+    .meter span { display: block; height: 100%; background: var(--green); }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; padding: 11px 15px; border-radius: 8px; font-size: 11px; box-shadow: var(--shadow); transform: translateY(80px); opacity: 0; transition: .25s; z-index: 20; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .disclaimer { color: var(--muted); font-size: 9px; line-height: 1.7; text-align: center; padding: 24px 12px 0; }
+    .risk-banner { margin-top: 16px; padding: 15px 17px; border: 1px solid #f0dca8; background: var(--yellow-bg); border-radius: 11px; display: flex; gap: 12px; align-items: flex-start; color: #73541d; font-size: 10px; line-height: 1.7; }
+    .risk-banner b { display: block; color: var(--yellow); font-size: 11px; margin-bottom: 2px; }
+    .risk-icon { width: 27px; height: 27px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 7px; background: #ffe8ac; font-weight: 800; }
+    .modal { position: fixed; inset: 0; z-index: 30; background: rgba(7, 21, 39, .7); display: none; padding: 28px; overflow: auto; backdrop-filter: blur(4px); }
+    .modal.open { display: block; }
+    .report { width: min(1040px, 100%); margin: 0 auto; background: var(--bg); border-radius: 16px; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,.3); }
+    .report-hero { background: var(--navy); color: #fff; padding: 24px 28px; display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+    .report-hero h2 { margin: 4px 0 5px; font-size: 22px; }
+    .report-hero p { color: #9bb1c7; font-size: 10px; margin: 0; }
+    .close-btn { border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: #fff; width: 34px; height: 34px; border-radius: 8px; }
+    .report-body { padding: 19px; display: grid; gap: 13px; }
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .report-card { background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 16px; }
+    .report-card h3 { margin: 0 0 13px; font-size: 12px; }
+    .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .data-cell { background: #f8fafc; border-radius: 7px; padding: 10px; }
+    .data-cell span { display: block; color: var(--muted); font-size: 8px; margin-bottom: 4px; }
+    .data-cell b { font-size: 12px; }
+    .report-list { display: grid; gap: 7px; }
+    .report-row { padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 15px; font-size: 10px; }
+    .report-row:last-child { border: 0; }
+    .conclusion { border-left: 4px solid var(--green); background: var(--green-bg); padding: 14px 15px; border-radius: 7px; color: #285e48; font-size: 10px; line-height: 1.65; }
+    .conclusion b { display: block; color: var(--green); font-size: 13px; margin-bottom: 3px; }
+    .product-view { display: none; }
+    .product-view.active { display: block; }
+    .page-intro { background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 22px 24px; margin-bottom: 15px; display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+    .page-intro h1 { color: var(--ink); font-size: 22px; margin-bottom: 5px; }
+    .page-intro p { color: var(--muted); font-size: 10px; line-height: 1.6; margin: 0; }
+    .page-chip { color: var(--green); background: var(--green-bg); padding: 6px 10px; border-radius: 20px; font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .two-col { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .commercial-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 17px; }
+    .commercial-card h3 { margin: 0 0 4px; font-size: 12px; }
+    .commercial-card > p { margin: 0 0 14px; font-size: 9px; color: var(--muted); }
+    .filter-group { border-top: 1px solid var(--line); padding: 13px 0 5px; }
+    .filter-group label { color: var(--muted); font-size: 9px; font-weight: 700; display: block; margin-bottom: 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { border: 1px solid var(--line); color: var(--muted); background: #fff; border-radius: 6px; padding: 6px 9px; font-size: 9px; }
+    .chip.selected { color: var(--green); border-color: #9bd7be; background: var(--green-bg); font-weight: 700; }
+    .primary-btn { border: 0; background: var(--navy); color: #fff; border-radius: 7px; padding: 10px 15px; font-size: 10px; font-weight: 700; }
+    .symbol-link { border: 0; background: transparent; color: var(--blue); padding: 0; font-weight: 700; font-size: 10px; }
+    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
+    .field label { display: block; color: var(--muted); font-size: 9px; margin-bottom: 5px; }
+    .field input { width: 100%; border: 1px solid var(--line); border-radius: 7px; padding: 9px 10px; outline: none; color: var(--ink); }
+    .field input:focus { border-color: #70b99b; box-shadow: 0 0 0 3px var(--green-bg); }
+    .formula { background: var(--blue-bg); color: #315c89; padding: 13px; border-radius: 8px; margin-top: 13px; font-size: 11px; text-align: center; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .result-box { background: #f8fafc; border-radius: 8px; padding: 14px; }
+    .result-box span { display: block; color: var(--muted); font-size: 8px; margin-bottom: 5px; }
+    .result-box b { font-size: 18px; }
+    .line-chart { height: 175px; position: relative; margin: 10px 5px 0; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .line-chart svg { width: 100%; height: 100%; overflow: visible; }
+    .health-score { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--green) 0 82%, #e8edf2 82%); position: relative; }
+    .health-score::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: #fff; }
+    .health-score b { position: relative; z-index: 1; font-size: 20px; }
+    .score-row { display: grid; grid-template-columns: 80px 1fr 28px; gap: 8px; align-items: center; font-size: 9px; margin: 10px 0; }
+    .score-track { height: 5px; background: #edf1f4; border-radius: 5px; overflow: hidden; }
+    .score-track span { display: block; height: 100%; background: var(--green); }
+    .rank { width: 21px; height: 21px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--navy); color: #fff; font-size: 8px; margin-right: 7px; }
+    .member-badge { background: linear-gradient(135deg, #f5c866, #fff0b2); color: #6d4a00; padding: 6px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; }
+    .metric-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 11px; }
+    .metric-card { background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 15px; }
+    .metric-card span { color: var(--muted); font-size: 9px; display: block; margin-bottom: 7px; }
+    .metric-card b { display: block; font-size: 20px; letter-spacing: -.04em; }
+    .metric-card small { color: var(--muted); font-size: 8px; }
+    .plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; }
+    .plan { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 17px; position: relative; }
+    .plan.featured { border: 2px solid var(--green); box-shadow: var(--shadow); }
+    .plan-tag { position: absolute; top: -9px; right: 12px; background: var(--green); color: #fff; font-size: 8px; padding: 4px 8px; border-radius: 20px; }
+    .plan h3 { margin: 0 0 3px; font-size: 13px; }
+    .plan-price { font-size: 20px; font-weight: 700; margin: 13px 0; }
+    .plan-price small { color: var(--muted); font-size: 8px; font-weight: 400; }
+    .feature { padding: 7px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+    .feature::before { content: "✓"; color: var(--green); font-weight: 800; margin-right: 6px; }
+    .assistant-box { background: linear-gradient(135deg, #102a49, #15496a); color: #fff; border-radius: 13px; padding: 18px; }
+    .assistant-box h3 { margin: 0 0 4px; font-size: 13px; }
+    .assistant-box p { color: #9eb5ca; margin: 0 0 13px; font-size: 9px; }
+    .ai-input { display: flex; gap: 7px; background: #fff; padding: 5px; border-radius: 8px; }
+    .ai-input input { min-width: 0; flex: 1; border: 0; outline: 0; padding: 7px; }
+    .ai-input button { border: 0; background: var(--green); color: #fff; border-radius: 6px; padding: 0 14px; font-size: 9px; font-weight: 700; }
+    .ai-response { display: none; margin-top: 12px; background: #fff; color: var(--ink); border-radius: 8px; padding: 13px; }
+    .ai-response.show { display: block; }
+    .alert-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 9px; }
+    .alert-row:last-child { border: 0; }
+    .channel { color: var(--muted); background: #f4f7fa; padding: 4px 7px; border-radius: 5px; }
+    .weekly-cover { background: linear-gradient(120deg, #0c2441, #12664c); color: #fff; border-radius: 13px; padding: 24px; }
+    .weekly-cover h2 { margin: 6px 0; font-size: 19px; }
+    .weekly-cover p { color: #a9bfd3; font-size: 9px; margin: 0; }
+    .weekly-list { counter-reset: report; display: grid; gap: 8px; margin-top: 15px; }
+    .weekly-item { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 7px; padding: 10px; font-size: 9px; }
+    .weekly-item::before { counter-increment: report; content: counter(report); display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 7px; border-radius: 50%; background: #76d2ab; color: var(--navy); font-weight: 800; }
+    .global-disclaimer { background: #0a1c33; color: #9fb0c1; padding: 17px 25px; text-align: center; font-size: 9px; line-height: 1.7; border-radius: 10px; margin-top: 20px; }
+
+    @media (max-width: 1050px) {
+      .app { grid-template-columns: 76px 1fr; }
+      .sidebar { width: 76px; padding: 22px 10px; }
+      .brand-name, .nav-item span:last-child, .nav-label, .sidebar-card { display: none; }
+      .brand { padding: 0 9px 24px; }
+      .nav-item { justify-content: center; padding: 12px; }
+      .main { grid-column: 2; }
+      .scan-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 780px) {
+      .app { display: block; }
+      .sidebar { display: none; }
+      .main { grid-column: auto; }
+      .content { padding: 20px 14px 40px; }
+      .topbar { padding: 0 16px; }
+      .hero { padding: 25px 20px; }
+      h1 { font-size: 23px; }
+      .search button { padding: 0 13px; }
+      .scan-grid { grid-template-columns: repeat(2, 1fr); }
+      .workspace { grid-template-columns: 1fr; }
+      .checks { grid-template-columns: repeat(2, 1fr); }
+      .check:nth-child(2n) { border-right: 0; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .modal { padding: 10px; }
+      .report-grid, .data-grid { grid-template-columns: 1fr; }
+      .two-col, .three-col, .input-grid { grid-template-columns: 1fr; }
+      .metric-grid, .plans { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">BB</div>
+        <div class="brand-name">Baby Bond Lab<small>ETD RESEARCH</small></div>
+      </div>
+      <div class="nav-label">研究工具</div>
+      <nav class="nav">
+        <button class="nav-item active" data-route="dashboard"><span class="nav-icon">⌂</span><span>總覽首頁</span></button>
+        <button class="nav-item" data-route="symbol/AQNB"><span class="nav-icon">⌕</span><span>ETD 詳細分析</span></button>
+        <button class="nav-item" data-route="screener"><span class="nav-icon">▦</span><span>ETD Screener</span></button>
+        <button class="nav-item" data-route="calculator"><span class="nav-icon">％</span><span>Call Calculator</span></button>
+        <button class="nav-item" data-route="screener"><span class="nav-icon">◷</span><span>First Call Date</span></button>
+        <button class="nav-item" data-route="ratings"><span class="nav-icon">A</span><span>信評中心</span></button>
+      </nav>
+      <div class="nav-label">個人專區</div>
+      <nav class="nav">
+        <button class="nav-item" data-route="member"><span class="nav-icon">●</span><span>會員首頁</span></button>
+        <button class="nav-item" data-route="watchlist"><span class="nav-icon">☆</span><span>我的觀察名單</span></button>
+        <button class="nav-item" data-route="alerts"><span class="nav-icon">!</span><span>自動提醒</span></button>
+        <button class="nav-item" data-route="weekly"><span class="nav-icon">▤</span><span>每週精選報告</span></button>
+        <button class="nav-item" data-route="plans"><span class="nav-icon">◇</span><span>會員方案</span></button>
+      </nav>
+      <div class="sidebar-card"><b>資料更新狀態</b><p>市場報價 · 15 分鐘延遲<br>信評與 SEC 文件 · 已同步</p></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb">研究控制台 / <b>市場總覽</b></div>
+        <div class="top-actions">
+          <span class="date-pill">市場資料 · 2026/06/14</span>
+          <span class="member-badge">PRO 專業會員</span>
+          <button class="icon-btn">?</button>
+          <button class="icon-btn">☆</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="hero">
+          <div class="eyebrow">ETD INVESTMENT INTELLIGENCE</div>
+          <h1>美國投資等級 ETD / Baby Bond 研究平台</h1>
+          <p>自動篩選 BBB 以上、低於 25 美元、具吸引力 YTC 與近期 Call Date 的 ETD，並完成 5 年財務健康檢查與風險評估。</p>
+          <form class="search" id="searchForm">
+            <span>⌕</span>
+            <input id="tickerInput" placeholder="輸入 ETD 代號，例如：AQNB、SCCG、RILYZ" maxlength="6">
+            <button type="submit">開始分析</button>
+          </form>
+          <div class="quick-links">熱門查詢：
+            <span class="ticker">AQNB</span><span class="ticker">SCCG</span><span class="ticker">RILYZ</span>
+          </div>
+        </section>
+
+        <div class="section-head">
+          <div><h2>今日市場掃描</h2><p>根據目前策略條件篩選美國交易所交易債券</p></div>
+          <button class="link-btn">查看完整市場 →</button>
+        </div>
+        <section class="scan-grid">
+          <div class="scan-card"><div class="scan-top"><span>ETD 總數</span><i class="scan-dot"></i></div><strong>138</strong><small>追蹤中標的</small></div>
+          <div class="scan-card"><div class="scan-top"><span>價格低於 $25</span><i class="scan-dot"></i></div><strong>68</strong><small class="up">↑ 12 檔符合條件</small></div>
+          <div class="scan-card"><div class="scan-top"><span>YTC 高於 6%</span><i class="scan-dot"></i></div><strong>42</strong><small>中位數 6.72%</small></div>
+          <div class="scan-card"><div class="scan-top"><span>1 年內可 Call</span><i class="scan-dot"></i></div><strong>19</strong><small>最近一檔 17 天</small></div>
+          <div class="scan-card"><div class="scan-top"><span>BBB- 以上</span><i class="scan-dot"></i></div><strong>57</strong><small>投資等級標的</small></div>
+          <div class="scan-card"><div class="scan-top"><span>投資等級 ETD</span><i class="scan-dot"></i></div><strong>64</strong><small>佔追蹤標的 46%</small></div>
+        </section>
+
+        <div class="section-head"><div><h2>今日精選</h2><p>依 YTC、Call Date 與折價幅度自動排行</p></div><button class="link-btn" data-route-short="screener">使用 Screener 深入篩選 →</button></div>
+        <section class="three-col">
+          <article class="commercial-card"><h3>最佳 YTC 排行</h3><p>兼顧目前收益與信用風險</p><div class="report-list"><div class="report-row"><span><i class="rank">1</i>RILYZ</span><b class="up">9.13%</b></div><div class="report-row"><span><i class="rank">2</i>SCCG</span><b class="up">8.42%</b></div><div class="report-row"><span><i class="rank">3</i>NSS</span><b class="up">7.82%</b></div></div></article>
+          <article class="commercial-card"><h3>最接近 Call Date</h3><p>提前贖回風險監控</p><div class="report-list"><div class="report-row"><span>AQNB · 2026/07/01</span><b>17 天</b></div><div class="report-row"><span>NSS · 已可 Call</span><b class="badge warn">隨時</b></div><div class="report-row"><span>SCCG · 2027/06/30</span><b>1.04 年</b></div></div></article>
+          <article class="commercial-card"><h3>最大折價</h3><p>相對 $25 面額折價幅度</p><div class="report-list"><div class="report-row"><span>RILYZ · $21.86</span><b class="up">-12.56%</b></div><div class="report-row"><span>SCCG · $24.31</span><b class="up">-2.76%</b></div><div class="report-row"><span>AQNB · $24.68</span><b class="up">-1.28%</b></div></div></article>
+        </section>
+
+        <div class="section-head">
+          <div><h2>快速體檢</h2><p>範例標的 AQNB · Algonquin Power & Utilities</p></div>
+          <button class="link-btn" id="reportBtn">開啟完整體檢報告 →</button>
+        </div>
+        <section class="workspace">
+          <article class="panel">
+            <div class="panel-head">
+              <div><h3>投資策略檢查</h3><p>依照 8 項核心條件檢核</p></div>
+              <span class="score">7 / 8 符合</span>
+            </div>
+            <div class="bond-title">
+              <div class="bond-id"><div class="bond-logo">AQ</div><div><h3>AQNB</h3><p>6.20% Fixed-to-Floating Subordinated Notes</p></div></div>
+              <div class="price"><strong>$24.68</strong><small>+0.12 · +0.49%</small></div>
+            </div>
+            <div class="stat-row">
+              <div class="stat"><label>Coupon</label><b>6.20%</b></div>
+              <div class="stat"><label>Current Yield</label><b>6.28%</b></div>
+              <div class="stat"><label>Yield to Call</label><b>6.91%</b></div>
+              <div class="stat"><label>First Call Date</label><b>2026/07/01</b></div>
+            </div>
+            <div class="checks">
+              <div class="check"><span>$25 面額</span><b class="badge good">符合</b></div>
+              <div class="check"><span>配息率 &gt; 5%</span><b class="badge good">符合</b></div>
+              <div class="check"><span>每年配息 4 次</span><b class="badge good">符合</b></div>
+              <div class="check"><span>ETD / Baby Bond</span><b class="badge good">符合</b></div>
+              <div class="check"><span>非可轉換</span><b class="badge good">符合</b></div>
+              <div class="check"><span>投資等級</span><b class="badge warn">待確認</b></div>
+              <div class="check"><span>發行說明書可查</span><b class="badge good">符合</b></div>
+              <div class="check"><span>Call Date ≤ 5 年</span><b class="badge good">符合</b></div>
+            </div>
+            <div class="mini-title">收益率比較</div>
+            <div class="yield-chart">
+              <div class="bar-wrap"><span class="bar-value">6.20%</span><div class="bar" style="height:51%"></div><span class="bar-label">Coupon</span></div>
+              <div class="bar-wrap"><span class="bar-value">6.28%</span><div class="bar" style="height:55%"></div><span class="bar-label">Current Yield</span></div>
+              <div class="bar-wrap"><span class="bar-value">6.91%</span><div class="bar primary" style="height:82%"></div><span class="bar-label">Yield to Call</span></div>
+              <div class="bar-wrap"><span class="bar-value">6.53%</span><div class="bar" style="height:66%"></div><span class="bar-label">Yield to Worst</span></div>
+            </div>
+          </article>
+
+          <aside class="panel">
+            <div class="panel-head"><div><h3>策略篩選器</h3><p>調整條件，尋找適合標的</p></div><button class="link-btn">重設</button></div>
+            <div class="filter-body">
+              <div class="filter"><div class="filter-line"><span>最高價格</span><b>$25.00</b></div><div class="range"><span style="width:74%"></span></div></div>
+              <div class="filter"><div class="filter-line"><span>最低 YTC</span><b>6.00%</b></div><div class="range"><span style="width:58%"></span></div></div>
+              <div class="filter"><div class="filter-line"><span>First Call Date</span><b>1–3 年</b></div><div class="range"><span style="width:68%"></span></div></div>
+              <div class="toggle-line"><span>投資等級 BBB- 以上</span><i class="toggle on"></i></div>
+              <div class="toggle-line"><span>每季配息</span><i class="toggle on"></i></div>
+              <div class="toggle-line"><span>排除可轉換債</span><i class="toggle on"></i></div>
+              <div class="toggle-line"><span>排除延遲利息</span><i class="toggle"></i></div>
+              <div class="toggle-line"><span>ETD only</span><i class="toggle on"></i></div>
+              <button class="filter-action" id="filterBtn">查看 24 檔符合標的</button>
+            </div>
+          </aside>
+        </section>
+
+        <div class="section-head">
+          <div><h2>值得關注的 ETD</h2><p>依收益、信評與 Call Date 綜合排序</p></div>
+          <div class="tabs"><button class="tab active">綜合推薦</button><button class="tab">最高 YTC</button><button class="tab">近期可 Call</button></div>
+        </div>
+        <section class="panel table-wrap">
+          <table>
+            <thead><tr><th>代號 / 發行人</th><th>現價</th><th>COUPON</th><th>CURRENT YIELD</th><th>YTC</th><th>FIRST CALL DATE</th><th>信評</th><th>策略分數</th></tr></thead>
+            <tbody>
+              <tr><td><span class="symbol">AQNB</span><br><small>Algonquin Power</small></td><td>$24.68</td><td>6.20%</td><td>6.28%</td><td class="up"><b>6.91%</b></td><td>2026/07/01</td><td><span class="badge warn">BBB-</span></td><td><b>88</b><i class="meter"><span style="width:88%"></span></i></td></tr>
+              <tr><td><span class="symbol">SCCG</span><br><small>Sachem Capital</small></td><td>$24.31</td><td>7.75%</td><td>7.97%</td><td class="up"><b>8.42%</b></td><td>2027/06/30</td><td><span class="badge warn">BBB-</span></td><td><b>84</b><i class="meter"><span style="width:84%"></span></i></td></tr>
+              <tr><td><span class="symbol">RILYZ</span><br><small>B. Riley Financial</small></td><td>$21.86</td><td>5.25%</td><td>6.01%</td><td class="up"><b>9.13%</b></td><td>2027/08/31</td><td><span class="badge bad">BB+</span></td><td><b>67</b><i class="meter"><span style="width:67%;background:#d3a33c"></span></i></td></tr>
+              <tr><td><span class="symbol">NSS</span><br><small>NuStar Logistics</small></td><td>$24.90</td><td>7.63%</td><td>7.66%</td><td class="up"><b>7.82%</b></td><td>已可 Call</td><td><span class="badge good">BBB</span></td><td><b>81</b><i class="meter"><span style="width:81%"></span></i></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="product-view" id="view-screener">
+          <div class="page-intro"><div><h1>ETD Screener</h1><p>以收益率、信評、價格、到期時間與 Call Date 快速篩選交易所交易債券。</p></div><span class="page-chip">24 檔符合目前條件</span></div>
+          <div class="two-col">
+            <aside class="commercial-card">
+              <h3>篩選條件</h3><p>類似 Finviz 的快速條件組合</p>
+              <div class="filter-group"><label>最低收益率 / YTC</label><div class="chips"><button class="chip">&gt; 5%</button><button class="chip selected">&gt; 6%</button><button class="chip">&gt; 7%</button><button class="chip">&gt; 8%</button></div></div>
+              <div class="filter-group"><label>最低信評</label><div class="chips"><button class="chip">BBB-</button><button class="chip selected">BBB</button><button class="chip">BBB+</button><button class="chip">A-</button><button class="chip">A</button></div></div>
+              <div class="filter-group"><label>到期時間</label><div class="chips"><button class="chip">1 年內</button><button class="chip">3 年內</button><button class="chip selected">5 年內</button><button class="chip">10 年內</button></div></div>
+              <div class="filter-group"><label>價格</label><div class="chips"><button class="chip selected">&lt; $25</button><button class="chip">$25–26</button><button class="chip">&gt; $26</button></div></div>
+              <div class="filter-group"><label>First Call Date</label><div class="chips"><button class="chip">1 年內</button><button class="chip selected">3 年內</button><button class="chip">5 年內</button></div></div>
+              <button class="primary-btn" id="applyScreener">套用條件並顯示結果</button>
+            </aside>
+            <section class="panel table-wrap">
+              <table><thead><tr><th>代號</th><th>價格</th><th>YTC</th><th>信評</th><th>CALL DATE</th><th>折價</th><th>財務分數</th></tr></thead>
+              <tbody>
+                <tr><td><button class="symbol-link" data-symbol="AQNB">AQNB</button></td><td>$24.68</td><td class="up"><b>6.91%</b></td><td><span class="badge good">BBB-</span></td><td>2026/07/01</td><td>-1.28%</td><td>82 / 100</td></tr>
+                <tr><td><button class="symbol-link" data-symbol="SCCG">SCCG</button></td><td>$24.31</td><td class="up"><b>8.42%</b></td><td><span class="badge warn">BBB-</span></td><td>2027/06/30</td><td>-2.76%</td><td>74 / 100</td></tr>
+                <tr><td><button class="symbol-link" data-symbol="NSS">NSS</button></td><td>$24.90</td><td class="up"><b>7.82%</b></td><td><span class="badge good">BBB</span></td><td>已可 Call</td><td>-0.40%</td><td>79 / 100</td></tr>
+              </tbody></table>
+            </section>
+          </div>
+        </section>
+
+        <section class="product-view" id="view-symbol">
+          <div class="page-intro"><div><h1>ETD 詳細分析：<span id="detailSymbol">AQNB</span></h1><p id="detailName">Algonquin Power & Utilities · 6.20% Fixed-to-Floating Subordinated Notes</p></div><button class="primary-btn" id="addWatch">＋ 加入觀察名單</button></div>
+          <div class="three-col">
+            <section class="commercial-card"><h3>基本資料</h3><p>發行條件與重要日期</p><div class="report-list"><div class="report-row"><span>發行人</span><b id="detailIssuer">AQN</b></div><div class="report-row"><span>ETD 代號</span><b id="detailCode">AQNB</b></div><div class="report-row"><span>面額</span><b>$25.00</b></div><div class="report-row"><span>票面利率</span><b id="detailCoupon">6.20%</b></div><div class="report-row"><span>配息頻率</span><b>季配</b></div><div class="report-row"><span>Call Date</span><b id="detailCall">2026/07/01</b></div></div></section>
+            <section class="commercial-card"><h3>收益分析</h3><p>基於目前示意價格 <span id="detailPrice">$24.68</span></p><div class="result-grid"><div class="result-box"><span>Current Yield</span><b id="detailCurrent">6.28%</b></div><div class="result-box"><span>Yield to Call</span><b class="up" id="detailYtc">6.91%</b></div><div class="result-box"><span>信用評等</span><b id="detailGrade">BBB-</b></div><div class="result-box"><span>剩餘時間</span><b id="detailRemaining">17 天</b></div></div></section>
+            <section class="commercial-card"><h3>財務健康分數</h3><p>近 5 年財務與信用綜合評估</p><div style="display:flex;gap:18px;align-items:center"><div class="health-score"><b>82</b></div><div style="flex:1"><div class="score-row"><span>營收</span><i class="score-track"><span style="width:85%"></span></i><b>17</b></div><div class="score-row"><span>EPS</span><i class="score-track"><span style="width:70%"></span></i><b>14</b></div><div class="score-row"><span>自由現金流</span><i class="score-track"><span style="width:75%"></span></i><b>15</b></div><div class="score-row"><span>信評</span><i class="score-track"><span style="width:90%"></span></i><b>18</b></div><div class="score-row"><span>配息穩定</span><i class="score-track"><span style="width:90%"></span></i><b>18</b></div></div></div></section>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <section class="commercial-card"><h3>價格變動 vs Yield to Call</h3><p>價格愈低，潛在 YTC 愈高</p><div class="line-chart"><svg viewBox="0 0 500 170" preserveAspectRatio="none"><polyline points="15,20 130,55 250,92 370,125 485,148" fill="none" stroke="#16855b" stroke-width="4"/><g fill="#16855b"><circle cx="15" cy="20" r="5"/><circle cx="130" cy="55" r="5"/><circle cx="250" cy="92" r="5"/><circle cx="370" cy="125" r="5"/><circle cx="485" cy="148" r="5"/></g><g fill="#708095" font-size="11"><text x="10" y="165">$22 · 9.1%</text><text x="215" y="165">$24 · 7.4%</text><text x="430" y="165">$25 · 6.8%</text></g></svg></div></section>
+            <section class="commercial-card"><h3>近 5 年財務趨勢</h3><p>營收、EPS、自由現金流與利息保障倍數</p><div class="report-list"><div class="report-row"><span>營收趨勢</span><b class="badge good">穩定成長</b></div><div class="report-row"><span>EPS 趨勢</span><b class="badge warn">波動</b></div><div class="report-row"><span>自由現金流</span><b class="badge warn">需觀察</b></div><div class="report-row"><span>近 5 年股利</span><b class="badge good">穩定</b></div><div class="report-row"><span>利息保障倍數</span><b>2.8×</b></div></div></section>
+          </div>
+        </section>
+
+        <section class="product-view" id="view-calculator">
+          <div class="page-intro"><div><h1>Call Calculator</h1><p>輸入價格、面額、Coupon 與距離 Call Date 年數，自動估算收益率與總報酬。</p></div><span class="page-chip">即時計算</span></div>
+          <div class="two-col">
+            <section class="commercial-card"><h3>計算條件</h3><p>所有欄位皆可調整</p><div class="input-grid"><div class="field"><label>市價 Price</label><input id="calcPrice" type="number" value="24.68" step=".01"></div><div class="field"><label>面額 Call Price</label><input id="calcPar" type="number" value="25" step=".01"></div><div class="field"><label>Coupon Rate (%)</label><input id="calcCoupon" type="number" value="6.2" step=".01"></div><div class="field"><label>距離 Call Date（年）</label><input id="calcYears" type="number" value="1.5" step=".1"></div></div><button class="primary-btn" id="calcBtn" style="margin-top:13px">重新計算</button><div class="formula">YTC ≈ [Coupon + (Call Price − Price) / Years] ÷ [(Call Price + Price) / 2]</div></section>
+            <section class="commercial-card"><h3>試算結果</h3><p>使用近似收益率公式，正式投資前應以現金流 IRR 複核</p><div class="result-grid"><div class="result-box"><span>Current Yield</span><b id="outCurrent">6.28%</b></div><div class="result-box"><span>Yield to Call</span><b id="outYtc" class="up">7.08%</b></div><div class="result-box"><span>Annualized Return</span><b id="outAnnual">7.08%</b></div><div class="result-box"><span>Total Return</span><b id="outTotal">10.62%</b></div></div></section>
+          </div>
+        </section>
+
+        <section class="product-view" id="view-ratings">
+          <div class="page-intro"><div><h1>信評中心</h1><p>快速辨識 Moody's、S&amp;P 與 Fitch 的投資等級門檻。</p></div><span class="page-chip">投資等級門檻：Baa3 / BBB-</span></div>
+          <div class="three-col">
+            <section class="commercial-card"><h3>Moody's</h3><p>長期信用評等</p><div class="report-list"><div class="report-row"><span>Aaa / Aa</span><b class="badge good">投資等級</b></div><div class="report-row"><span>A</span><b class="badge good">投資等級</b></div><div class="report-row"><span>Baa</span><b class="badge good">投資等級</b></div><div class="report-row"><span>Ba 以下</span><b class="badge bad">非投資等級</b></div></div></section>
+            <section class="commercial-card"><h3>S&amp;P</h3><p>長期信用評等</p><div class="report-list"><div class="report-row"><span>AAA / AA</span><b class="badge good">投資等級</b></div><div class="report-row"><span>A</span><b class="badge good">投資等級</b></div><div class="report-row"><span>BBB</span><b class="badge good">投資等級</b></div><div class="report-row"><span>BB 以下</span><b class="badge bad">非投資等級</b></div></div></section>
+            <section class="commercial-card"><h3>評等觀察</h3><p>近期示意信用事件</p><div class="report-list"><div class="report-row"><span>AQNB</span><b class="badge warn">展望穩定</b></div><div class="report-row"><span>SCCG</span><b class="badge warn">需觀察</b></div><div class="report-row"><span>RILYZ</span><b class="badge bad">非投資級</b></div></div></section>
+          </div>
+        </section>
+
+        <section class="product-view" id="view-watchlist">
+          <div class="page-intro"><div><h1>我的 ETD 觀察名單</h1><p>集中追蹤價格、YTC、Call Date、配息公告與信用事件。</p></div><button class="primary-btn">＋ 新增標的</button></div>
+          <section class="panel table-wrap"><table><thead><tr><th>代號</th><th>成本</th><th>現價</th><th>未實現損益</th><th>YTC</th><th>CALL DATE</th><th>最新提醒</th></tr></thead><tbody><tr><td><button class="symbol-link" data-symbol="AQNB">AQNB</button></td><td>$23.20</td><td>$24.68</td><td class="up">+6.38%</td><td>6.91%</td><td>2026/07/01</td><td><span class="badge warn">17 天後可 Call</span></td></tr><tr><td><button class="symbol-link" data-symbol="SCCG">SCCG</button></td><td>$24.50</td><td>$24.31</td><td class="bad">-0.78%</td><td>8.42%</td><td>2027/06/30</td><td><span class="badge good">配息已公告</span></td></tr></tbody></table></section>
+          <div class="risk-banner"><span class="risk-icon">i</span><div><b>每日監控項目</b>信評變動、Call Date 接近提醒、配息公告、發行人財報、ETF 持股變動與信用事件。</div></div>
+        </section>
+
+        <section class="product-view" id="view-member">
+          <div class="page-intro"><div><h1>歡迎回來，研究會員</h1><p>你的 ETD 持倉、收益與風險提醒已更新完成。</p></div><span class="member-badge">PRO 專業版</span></div>
+          <div class="metric-grid">
+            <div class="metric-card"><span>我的 ETD 持倉</span><b>6 檔</b><small>總市值 $14,836</small></div>
+            <div class="metric-card"><span>本月配息預估</span><b class="up">$86.40</b><small>3 檔預計配息</small></div>
+            <div class="metric-card"><span>最近 Call Date</span><b>17 天</b><small>AQNB · 2026/07/01</small></div>
+            <div class="metric-card"><span>未實現損益</span><b class="up">+$412</b><small>+2.86%</small></div>
+            <div class="metric-card"><span>持倉平均 YTC</span><b>7.38%</b><small>高於市場中位數</small></div>
+          </div>
+          <div class="two-col" style="margin-top:14px">
+            <section class="commercial-card"><h3>風險警示</h3><p>依持倉與觀察名單自動產生</p><div class="report-list"><div class="report-row"><span>AQNB 進入 12 個月 Call 區間</span><b class="badge warn">需注意</b></div><div class="report-row"><span>RILYZ 信評低於投資等級</span><b class="badge bad">高風險</b></div><div class="report-row"><span>SCCG YTC 高於 8%</span><b class="badge warn">信用溢價</b></div><div class="report-row"><span>本月配息公告</span><b class="badge good">3 則</b></div></div></section>
+            <section class="assistant-box"><h3>AI ETD 研究助理</h3><p>以自然語言提出條件，取得固定格式研究結果。</p><div class="ai-input"><input id="aiQuery" value="幫我找 BBB 以上、價格低於 25、YTC 高於 6%、3 年內 Call 的 ETD。"><button id="askAi">開始篩選</button></div><div class="ai-response" id="aiResponse"><div class="report-list"><div class="report-row"><span>符合標的清單</span><b>AQNB、SCCG、NSS</b></div><div class="report-row"><span>Call Date</span><b>17 天至 1.1 年</b></div><div class="report-row"><span>YTC</span><b class="up">6.91%–8.42%</b></div><div class="report-row"><span>信評</span><b>BBB- 至 BBB</b></div><div class="report-row"><span>主要風險</span><b>提前贖回、信用溢價</b></div><div class="report-row"><span>是否進入觀察名單</span><b class="badge good">建議加入</b></div></div></div></section>
+          </div>
+        </section>
+
+        <section class="product-view" id="view-alerts">
+          <div class="page-intro"><div><h1>自動提醒中心</h1><p>設定 Email / LINE 通知條件。此原型尚未連接實際發送後端。</p></div><span class="page-chip">6 項監控規則</span></div>
+          <div class="two-col">
+            <section class="commercial-card"><h3>市場與收益提醒</h3><p>價格、收益率與 Call Date</p><div class="alert-row"><span>價格跌破 $25</span><i class="channel">Email + LINE</i><i class="toggle on"></i></div><div class="alert-row"><span>YTC 高於 7%</span><i class="channel">LINE</i><i class="toggle on"></i></div><div class="alert-row"><span>Call Date 進入 12 個月內</span><i class="channel">Email + LINE</i><i class="toggle on"></i></div></section>
+            <section class="commercial-card"><h3>信用與公司事件</h3><p>信用、財務與配息異常</p><div class="alert-row"><span>信評被調降</span><i class="channel">Email + LINE</i><i class="toggle on"></i></div><div class="alert-row"><span>發行人財報惡化</span><i class="channel">Email</i><i class="toggle on"></i></div><div class="alert-row"><span>配息異常</span><i class="channel">Email + LINE</i><i class="toggle on"></i></div></section>
+          </div>
+          <div class="risk-banner"><span class="risk-icon">i</span><div><b>發送狀態</b>介面規則可操作，但 Email / LINE 推播需在正式版串接會員帳號、排程服務與訊息供應商。</div></div>
+        </section>
+
+        <section class="product-view" id="view-weekly">
+          <div class="page-intro"><div><h1>每週研究報告</h1><p>專業版與 VIP 會員每週取得 ETD 市場重點與精選觀察清單。</p></div><button class="primary-btn" id="downloadWeekly">下載本週報告</button></div>
+          <div class="two-col">
+            <section class="weekly-cover"><span class="eyebrow">WEEKLY ETD INTELLIGENCE · 2026/06/14</span><h2>本週美國 ETD / Baby Bond 精選觀察清單</h2><p>收益、折價、Call Date、信用與財務健康一次整理。</p><div class="weekly-list"><div class="weekly-item">本週殖利率最高</div><div class="weekly-item">折價幅度最大</div><div class="weekly-item">1–3 年內可 Call</div><div class="weekly-item">BBB 以上投資等級</div><div class="weekly-item">財務健康分數前 10 名</div><div class="weekly-item">需避開的高風險標的</div></div></section>
+            <section class="commercial-card"><h3>本週摘要</h3><p>示意研究結論</p><div class="report-list"><div class="report-row"><span>追蹤 ETD</span><b>138 檔</b></div><div class="report-row"><span>符合保守策略</span><b class="up">24 檔</b></div><div class="report-row"><span>最高投資級 YTC</span><b>8.42%</b></div><div class="report-row"><span>新增風險警示</span><b class="badge bad">4 則</b></div><div class="report-row"><span>本週首選</span><b>AQNB / SCCG</b></div></div></section>
+          </div>
+        </section>
+
+        <section class="product-view" id="view-plans">
+          <div class="page-intro"><div><h1>會員方案</h1><p>從單一 ETD 查詢，到完整信用追蹤、風險報告與客製篩選。</p></div><span class="page-chip">V3.0 會員制產品</span></div>
+          <div class="plans">
+            <article class="plan"><h3>免費版</h3><p class="plan-price">$0 <small>/ 永久</small></p><div class="feature">查詢單一 ETD</div><div class="feature">基本發行資料</div><button class="primary-btn" style="width:100%;margin-top:14px">目前方案</button></article>
+            <article class="plan"><h3>進階版</h3><p class="plan-price">$12 <small>/ 月</small></p><div class="feature">ETD Screener</div><div class="feature">YTC 試算</div><div class="feature">觀察清單</div><button class="primary-btn" style="width:100%;margin-top:14px">升級進階版</button></article>
+            <article class="plan featured"><span class="plan-tag">推薦</span><h3>專業版</h3><p class="plan-price">$29 <small>/ 月</small></p><div class="feature">信評追蹤</div><div class="feature">財報分析</div><div class="feature">Call Date 提醒</div><button class="primary-btn" style="width:100%;margin-top:14px;background:var(--green)">目前方案</button></article>
+            <article class="plan"><h3>VIP 版</h3><p class="plan-price">$79 <small>/ 月</small></p><div class="feature">每週精選清單</div><div class="feature">完整風險報告</div><div class="feature">客製篩選策略</div><button class="primary-btn" style="width:100%;margin-top:14px">聯絡升級</button></article>
+          </div>
+        </section>
+        <div class="risk-banner"><span class="risk-icon">!</span><div><b>ETD 投資風險提醒</b>本工具僅供研究，不構成買賣建議。ETD 雖然類似債券，但仍有利率風險、信用風險、提前贖回風險、流動性風險與價格波動風險。</div></div>
+        <div class="global-disclaimer">本平台僅供研究與教育用途，不構成投資建議。投資 ETD / Baby Bond 仍需自行承擔利率、信用、流動性與提前贖回風險。<br>目前市場數字、會員功能與通知內容皆為產品原型示意。</div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="reportModal" aria-hidden="true">
+    <article class="report">
+      <header class="report-hero">
+        <div><span class="eyebrow">STANDARD ETD ANALYSIS REPORT</span><h2>ETD 體檢報告：<span id="rSymbol">AQNB</span></h2><p id="rName">Algonquin Power & Utilities · Fixed-to-Floating Subordinated Notes</p></div>
+        <button class="close-btn" id="closeReport" aria-label="關閉報告">×</button>
+      </header>
+      <div class="report-body">
+        <section class="report-card">
+          <h3>一、基本條件檢查</h3>
+          <div class="checks" id="rChecks"></div>
+        </section>
+        <div class="report-grid">
+          <section class="report-card">
+            <h3>二、收益分析</h3>
+            <div class="data-grid">
+              <div class="data-cell"><span>現價</span><b id="rPrice">$24.68</b></div>
+              <div class="data-cell"><span>年息 / Coupon</span><b id="rCoupon">6.20%</b></div>
+              <div class="data-cell"><span>Current Yield</span><b id="rCurrent">6.28%</b></div>
+              <div class="data-cell"><span>Yield to Call</span><b id="rYtc">6.91%</b></div>
+              <div class="data-cell"><span>First Call Date</span><b id="rCall">2026/07/01</b></div>
+              <div class="data-cell"><span>剩餘時間</span><b id="rRemaining">17 天</b></div>
+            </div>
+          </section>
+          <section class="report-card">
+            <h3>三、風險分析</h3>
+            <div class="report-list" id="rRisks"></div>
+          </section>
+        </div>
+        <section class="report-card">
+          <h3>四、研究結論</h3>
+          <div class="conclusion"><b id="rVerdict">值得深入研究</b><span id="rConclusion">價格低於面額、收益率符合策略；需持續確認信評與提前贖回機率。</span></div>
+        </section>
+        <div class="risk-banner"><span class="risk-icon">!</span><div><b>固定風險提醒</b>本工具僅供研究，不構成買賣建議。ETD 仍有利率、信用、提前贖回、流動性與價格波動風險。</div></div>
+      </div>
+    </article>
+  </div>
+  <div class="toast" id="toast">篩選條件已更新</div>
+  <script>
+    const toast = document.getElementById('toast');
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+    document.querySelectorAll('.toggle').forEach(toggle => toggle.addEventListener('click', () => {
+      toggle.classList.toggle('on');
+      showToast('篩選條件已更新');
+    }));
+    document.querySelectorAll('.ticker').forEach(ticker => ticker.addEventListener('click', () => {
+      document.getElementById('tickerInput').value = ticker.textContent;
+      showToast(`已載入 ${ticker.textContent}，按「開始分析」查看報告`);
+    }));
+    const bondData = {
+      'AQNB': {issuer:'AQN', name:'Algonquin Power & Utilities · Fixed-to-Floating Subordinated Notes', price:'$24.68', coupon:'6.20%', current:'6.28%', ytc:'6.91%', call:'2026/07/01', remaining:'17 天', grade:'BBB-', verdict:'值得深入研究', conclusion:'價格低於面額、收益率符合策略；需持續確認信評與提前贖回機率。', pass:[1,1,1,1,1,1], risks:['公司財務穩定度：需持續觀察','信評：投資等級 BBB-','延遲配息風險：低','Call Risk：中等，已接近 Call Date']},
+      'SCCG': {issuer:'SACH', name:'Sachem Capital · Senior Notes', price:'$24.31', coupon:'7.75%', current:'7.97%', ytc:'8.42%', call:'2027/06/30', remaining:'1.04 年', grade:'BBB-', verdict:'可觀察', conclusion:'收益率具吸引力，但應進一步檢查發行人槓桿、現金流與信用評等變化。', pass:[1,1,1,1,1,1], risks:['公司財務穩定度：注意','信評：投資等級邊緣','延遲配息風險：低','Call Risk：低於面額，風險較低']},
+      'RILYZ': {issuer:'RILY', name:'B. Riley Financial · Senior Notes', price:'$21.86', coupon:'5.25%', current:'6.01%', ytc:'9.13%', call:'2027/08/31', remaining:'1.21 年', grade:'BB+', verdict:'不符合', conclusion:'YTC 偏高反映信用風險，且未達投資等級條件；不符合目前保守型策略。', pass:[1,1,1,1,0,1], risks:['公司財務穩定度：危險','信評：非投資等級 BB+','延遲配息風險：注意','Call Risk：低，但信用風險較高']},
+      'NSS': {issuer:'NS', name:'NuStar Logistics · Subordinated Notes', price:'$24.90', coupon:'7.63%', current:'7.66%', ytc:'7.82%', call:'已可 Call', remaining:'隨時', grade:'BBB', verdict:'可觀察', conclusion:'投資等級且收益率具吸引力，但已進入可贖回期間，應評估提前贖回風險。', pass:[1,1,1,1,1,1], risks:['公司財務穩定度：正常','信評：投資等級 BBB','延遲配息風險：低','Call Risk：高，已可贖回']},
+      'AHT-I': {issuer:'AHT', name:'Ashford Hospitality Trust · Preferred Series I', price:'$17.42', coupon:'7.50%', current:'10.76%', ytc:'—', call:'已可 Call', remaining:'隨時', grade:'未評等', verdict:'不符合', conclusion:'此標的是優先股而非 ETD / Baby Bond，不符合 ETD only 策略。', pass:[1,0,1,1,0,1], risks:['公司財務穩定度：危險','信評：未評等','延遲配息風險：高','Call Risk：已可贖回']}
+    };
+    const reportModal = document.getElementById('reportModal');
+    function openReport(symbol) {
+      const data = bondData[symbol] || bondData.AQNB;
+      document.getElementById('rSymbol').textContent = symbol;
+      document.getElementById('rName').textContent = data.name;
+      ['Price','Coupon','Current','Ytc','Call','Remaining'].forEach(key => document.getElementById('r' + key).textContent = data[key.toLowerCase()]);
+      const labels = ['$25 面額','ETD / Baby Bond','配息率 > 5%','每年配息 4 次','投資等級','First Call Date 5 年內'];
+      document.getElementById('rChecks').innerHTML = labels.map((label, i) => `<div class="check"><span>${label}</span><b class="badge ${data.pass[i] ? 'good' : 'bad'}">${data.pass[i] ? '符合' : '不符合'}</b></div>`).join('');
+      document.getElementById('rRisks').innerHTML = data.risks.map((risk, i) => `<div class="report-row"><span>${risk.split('：')[0]}</span><b class="${risk.includes('危險') || risk.includes('非投資') || risk.includes('高') ? 'bad' : i === 0 ? 'warn' : 'good'} badge">${risk.split('：').slice(1).join('：')}</b></div>`).join('');
+      document.getElementById('rVerdict').textContent = data.verdict;
+      document.getElementById('rConclusion').textContent = data.conclusion;
+      reportModal.classList.add('open');
+      reportModal.setAttribute('aria-hidden','false');
+    }
+    document.getElementById('searchForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const value = document.getElementById('tickerInput').value.trim().toUpperCase();
+      if (!value) return showToast('請先輸入 ETD 代號');
+      if (!bondData[value]) return showToast(`原型尚未收錄 ${value}，請試試 AQNB、SCCG、RILYZ 或 AHT-I`);
+      openReport(value);
+    });
+    document.getElementById('filterBtn').addEventListener('click', () => showToast('已找到 24 檔符合策略的 ETD'));
+    document.getElementById('reportBtn').addEventListener('click', () => openReport('AQNB'));
+    document.getElementById('closeReport').addEventListener('click', () => { reportModal.classList.remove('open'); reportModal.setAttribute('aria-hidden','true'); });
+    reportModal.addEventListener('click', event => { if (event.target === reportModal) document.getElementById('closeReport').click(); });
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(item => item.classList.remove('active'));
+      tab.classList.add('active');
+      showToast(`已切換至「${tab.textContent}」排序`);
+    }));
+    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
+      if (item.dataset.route) routeTo(item.dataset.route);
+    }));
+    const content = document.querySelector('.content');
+    const dashboardBlocks = [...content.children].filter(item => !item.classList.contains('product-view'));
+    const routeNames = {dashboard:'市場總覽', screener:'ETD Screener', symbol:'ETD 詳細分析', calculator:'Call Calculator', ratings:'信評中心', watchlist:'我的觀察名單', member:'會員首頁', alerts:'自動提醒中心', weekly:'每週研究報告', plans:'會員方案'};
+    let currentDetailSymbol = 'AQNB';
+    function updateSymbolPage(symbol) {
+      const data = bondData[symbol] || bondData.AQNB;
+      currentDetailSymbol = bondData[symbol] ? symbol : 'AQNB';
+      document.getElementById('detailSymbol').textContent = currentDetailSymbol;
+      document.getElementById('detailName').textContent = data.name;
+      document.getElementById('detailIssuer').textContent = data.issuer;
+      document.getElementById('detailCode').textContent = currentDetailSymbol;
+      document.getElementById('detailCoupon').textContent = data.coupon;
+      document.getElementById('detailCall').textContent = data.call;
+      document.getElementById('detailPrice').textContent = data.price;
+      document.getElementById('detailCurrent').textContent = data.current;
+      document.getElementById('detailYtc').textContent = data.ytc;
+      document.getElementById('detailGrade').textContent = data.grade;
+      document.getElementById('detailRemaining').textContent = data.remaining;
+    }
+    function routeTo(route, updateHash = true) {
+      const base = route.split('/')[0];
+      if (base === 'symbol') updateSymbolPage(route.split('/')[1] || 'AQNB');
+      document.querySelectorAll('.product-view').forEach(view => view.classList.remove('active'));
+      dashboardBlocks.forEach(block => block.style.display = base === 'dashboard' ? '' : 'none');
+      if (base !== 'dashboard') {
+        const target = document.getElementById('view-' + base);
+        if (target) target.classList.add('active');
+      }
+      document.querySelector('.breadcrumb').innerHTML = `研究控制台 / <b>${routeNames[base] || '市場總覽'}</b>`;
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.toggle('active', nav.dataset.route && nav.dataset.route.split('/')[0] === base));
+      if (updateHash) location.hash = '#/' + route;
+      window.scrollTo(0, 0);
+    }
+    document.querySelectorAll('.symbol-link').forEach(link => link.addEventListener('click', () => routeTo('symbol/' + link.dataset.symbol)));
+    document.querySelectorAll('[data-route-short]').forEach(link => link.addEventListener('click', () => routeTo(link.dataset.routeShort)));
+    document.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => chip.classList.toggle('selected')));
+    document.getElementById('applyScreener').addEventListener('click', () => showToast('已套用篩選條件，找到 24 檔 ETD'));
+    document.getElementById('addWatch').addEventListener('click', () => showToast(`${currentDetailSymbol} 已加入觀察名單`));
+    function calculateCall() {
+      const price = Number(document.getElementById('calcPrice').value);
+      const par = Number(document.getElementById('calcPar').value);
+      const couponRate = Number(document.getElementById('calcCoupon').value) / 100;
+      const years = Number(document.getElementById('calcYears').value);
+      if (!(price > 0 && par > 0 && couponRate >= 0 && years > 0)) return showToast('請輸入有效的正數計算條件');
+      const annualCoupon = par * couponRate;
+      const current = annualCoupon / price * 100;
+      const ytc = (annualCoupon + (par - price) / years) / ((par + price) / 2) * 100;
+      const total = ytc * years;
+      document.getElementById('outCurrent').textContent = current.toFixed(2) + '%';
+      document.getElementById('outYtc').textContent = ytc.toFixed(2) + '%';
+      document.getElementById('outAnnual').textContent = ytc.toFixed(2) + '%';
+      document.getElementById('outTotal').textContent = total.toFixed(2) + '%';
+      showToast('收益率試算已更新');
+    }
+    document.getElementById('calcBtn').addEventListener('click', calculateCall);
+    document.getElementById('askAi').addEventListener('click', () => {
+      const query = document.getElementById('aiQuery').value.trim();
+      if (!query) return showToast('請先輸入研究條件');
+      document.getElementById('aiResponse').classList.add('show');
+      showToast('AI 已依條件找到 3 檔符合標的');
+    });
+    document.getElementById('downloadWeekly').addEventListener('click', () => showToast('正式版將產生會員專屬 PDF 報告'));
+    document.querySelectorAll('.plan .primary-btn').forEach(button => button.addEventListener('click', () => showToast('方案升級流程將串接會員帳號與金流')));
+    window.addEventListener('hashchange', () => routeTo(location.hash.replace('#/','') || 'dashboard', false));
+    routeTo(location.hash.replace('#/','') || 'dashboard', false);
+  </script>
+</body>
+</html>
